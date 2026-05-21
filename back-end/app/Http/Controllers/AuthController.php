@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
@@ -14,11 +17,11 @@ class AuthController extends Controller
             'password' => 'required|string|min:8|confirmed',
         ]);
 
-        $user = \App\Models\User::create($validated);
+        $user = User::create($validated);
 
-        $token = $user->createToken('auth_token')->plainTextToken;
+        Auth::login($user);
 
-        return response()->json(['message' => 'User registered successfully', 'data' => ['user' => $user, 'token' => $token]], 201);
+        return response()->json(['message' => 'User registered successfully', 'data' => ['user' => $user]], 201);
     }
 
     public function login(Request $request)
@@ -28,20 +31,23 @@ class AuthController extends Controller
             'password' => 'required|string',
         ]);
 
-        $user = \App\Models\User::where('email', $validated['email'])->first();
+        $user = User::where('email', $validated['email'])->first();
 
-        if (!$user || !\Illuminate\Support\Facades\Hash::check($validated['password'], $user->password)) {
+        if (! $user || ! Hash::check($validated['password'], $user->password)) {
             return response()->json(['message' => 'Invalid credentials'], 401);
         }
 
-        $token = $user->createToken('auth_token')->plainTextToken;
+        $request->session()->regenerate();
 
-        return response()->json(['message' => 'Login successful', 'data' => ['user' => $user, 'token' => $token]], 200);
+        return response()->json(['message' => 'Login successful', 'data' => ['user' => $user]], 200);
     }
 
     public function logout(Request $request)
     {
-        $request->user()->currentAccessToken()->delete();
+        Auth::logout();
+
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
 
         return response()->json(['message' => 'Logged out successfully'], 200);
     }

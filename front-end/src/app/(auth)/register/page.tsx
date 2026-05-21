@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { register } from 'next/dist/next-devtools/userspace/pages/pages-dev-overlay-setup';
+import api, { getCsrfCookie } from '@/lib/api';
 type formValues = {
   name: string;
   email: string;
@@ -15,6 +15,18 @@ type formValues = {
   password_confirmation: string;
 }
 export default function Register() {
+  React.useEffect(() => {
+    const getCsrf = async () => {
+      const response = await getCsrfCookie();
+
+      if (response.status === 204) {
+        window.location.href = "/";
+      }
+      console.log(response);
+    };
+
+    getCsrf();
+  }, []);
   const schema = z.object({
     name: z.string().min(2).max(255),
     email: z.string().email(),
@@ -33,8 +45,12 @@ export default function Register() {
       password_confirmation: "",
     },
   });
+  const [loading, setLoading] = React.useState<boolean>(false);
   const onSubmit = async (data: formValues) => {
-    await console.log(data);
+    setLoading(true);
+    const response = await api.post("/register", data);
+    setLoading(false);
+    console.log(response.data);
   };
   return (
     <div className="flex items-center justify-center h-screen">
@@ -56,7 +72,9 @@ export default function Register() {
           <Label htmlFor="password_confirmation" className="block text-gray-700 mb-2">Confirm Password</Label>
           <Input type="password" id="password_confirmation" {...register("password_confirmation")} />
         </div>
-        <Button type="submit" className="w-full cursor-pointer text-white py-2 rounded">Register</Button>
+        <Button type="submit" className="w-full cursor-pointer text-white py-2 rounded" disabled={loading}>
+          {loading ? "Registering..." : "Register"}
+        </Button>
       </form>
     </div>
   )

@@ -10,7 +10,7 @@ export default function AppLayout({
 }) {
   const pathname = usePathname();
 
-  const isAuthRoute = pathname.startsWith("/auth");
+  const isAuthRoute = pathname.startsWith("/login") || pathname.startsWith("/register");
 
   return (
     <>
