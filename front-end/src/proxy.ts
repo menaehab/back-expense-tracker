@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-
+import { useUserStore } from "./store/user-state";
 const authPages = ["/login", "/register"];
 
 export async function proxy(request: NextRequest) {
@@ -13,14 +13,17 @@ export async function proxy(request: NextRequest) {
   const referer = request.headers.get("referer") || request.nextUrl.origin;
 
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user`, {
-      method: "GET",
-      headers: {
-        "Accept": "application/json",
-        "Cookie": cookie,
-        "Referer": referer,
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/user`,
+      {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+          Cookie: cookie,
+          Referer: referer,
+        },
       },
-    });
+    );
 
     isLoggedIn = response.status === 200;
   } catch (error) {

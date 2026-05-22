@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import api from '@/lib/api';
 import { useRouter } from 'next/navigation';
-
+import { useUserStore } from '@/store/user-state';
 type formValues = {
   name: string;
   email: string;
@@ -38,6 +38,7 @@ export default function Register() {
     },
   });
   const [loading, setLoading] = React.useState<boolean>(false);
+  const { setUser } = useUserStore();
   const onSubmit = async (data: formValues) => {
     try {
       setLoading(true);
@@ -47,6 +48,10 @@ export default function Register() {
 
       // register
       const response = await api.post("/api/register", data);
+      const user = response.data.data.user;
+
+      // Update user state
+      setUser(user);
 
       // Refresh page state and redirect to home
       router.refresh();

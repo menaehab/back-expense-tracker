@@ -1,6 +1,6 @@
 "use client";
 
-import { Book, Menu, Sunset, Trees, Zap } from "lucide-react";
+import { Book, Menu, Sunset, Trees, Zap, LogOut, ChevronDown, User } from "lucide-react";
 
 import {
   Accordion,
@@ -24,8 +24,18 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
-
+import { useEffect } from "react";
+import { useUserStore } from "@/store/user-state";
+import api from "@/lib/api";
+import { useRouter } from "next/navigation";
 interface MenuItem {
   title: string;
   url: string;
@@ -48,16 +58,15 @@ interface NavbarProps {
     login: {
       title: string;
       url: string;
-      verify?: boolean;
     };
     signup: {
       title: string;
       url: string;
-      verify?: boolean;
     };
-    user: {
-      name: string;
-    }
+    logout?: {
+      title: string;
+      onLogout?: () => void;
+    };
   };
 }
 
@@ -70,45 +79,31 @@ const Navbar = ({
   },
   menu = [
     { title: "Home", url: "/" },
-    // {
-    //   title: "Products",
-    //   url: "#",
-    //   items: [
-    //     {
-    //       title: "Blog",
-    //       description: "The latest industry news, updates, and info",
-    //       icon: <Book className="size-5 shrink-0" />,
-    //       url: "#",
-    //     },
-    //     {
-    //       title: "Company",
-    //       description: "Our mission is to innovate and empower the world",
-    //       icon: <Trees className="size-5 shrink-0" />,
-    //       url: "#",
-    //     },
-    //     {
-    //       title: "Careers",
-    //       description: "Browse job listing and discover our workspace",
-    //       icon: <Sunset className="size-5 shrink-0" />,
-    //       url: "#",
-    //     },
-    //     {
-    //       title: "Support",
-    //       description:
-    //         "Get in touch with our support team or visit our community forums",
-    //       icon: <Zap className="size-5 shrink-0" />,
-    //       url: "#",
-    //     },
-    //   ],
-    // },
-
   ],
   auth = {
     login: { title: "Login", url: "/login" },
     signup: { title: "Sign up", url: "/register" },
+    logout: { title: "Logout" },
   },
   className,
 }: NavbarProps) => {
+  const { user, setUser } = useUserStore();
+  const router = useRouter();
+
+  const isLoggedIn = !!user;
+  const userName = user?.name ?? "";
+
+
+  const handleLogout = async () => {
+    try {
+      await api.post("/api/logout");
+
+      router.refresh();
+    } catch (error) {
+      console.error("Error logging out:", error);
+    }
+  };
+
   return (
     <section className={cn("py-4", className)}>
       <div className="container mx-auto">
@@ -134,19 +129,27 @@ const Navbar = ({
               </NavigationMenu>
             </div>
           </div>
-          <div className="flex gap-2">
-            <Button asChild variant="outline" size="sm">
-              <a href={auth.login.url}>{auth.login.title}</a>
-            </Button>
-            <Button asChild size="sm">
-              <a href={auth.signup.url}>{auth.signup.title}</a>
-            </Button>
+
+          {/* Auth Section */}
+          <div className="flex gap-2 items-center">
+            {isLoggedIn ? (
+              <UserDropdown userName={userName} onLogout={handleLogout} />
+            ) : (
+              <>
+                <Button asChild variant="outline" size="sm">
+                  <a href={auth.login.url}>{auth.login.title}</a>
+                </Button>
+                <Button asChild size="sm">
+                  <a href={auth.signup.url}>{auth.signup.title}</a>
+                </Button>
+              </>
+            )}
           </div>
         </nav>
 
         {/* Mobile Menu */}
         <div className="block lg:hidden">
-          <div className="flex items-center justify-center gap-3">
+          <div className="flex items-center justify-between px-4">
             {/* Logo */}
             <a href={logo.url} className="flex items-center gap-2">
               <img
@@ -154,6 +157,9 @@ const Navbar = ({
                 className="max-h-8 dark:invert"
                 alt={logo.alt}
               />
+              <span className="text-base font-semibold tracking-tighter">
+                {logo.title}
+              </span>
             </a>
             <Sheet>
               <SheetTrigger asChild>
@@ -182,14 +188,32 @@ const Navbar = ({
                     {menu.map((item) => renderMobileMenuItem(item))}
                   </Accordion>
 
-                  <div className="flex flex-col gap-3">
-                    <Button asChild variant="outline">
-                      <a href={auth.login.url}>{auth.login.title}</a>
-                    </Button>
-                    <Button asChild>
-                      <a href={auth.signup.url}>{auth.signup.title}</a>
-                    </Button>
-                  </div>
+                  {/* Mobile Auth */}
+                  {isLoggedIn ? (
+                    <div className="flex flex-col gap-3">
+                      <div className="flex items-center gap-2 px-1 py-2 text-sm font-medium text-muted-foreground">
+                        <User className="size-4" />
+                        <span>{userName}</span>
+                      </div>
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start gap-2 text-destructive hover:text-destructive"
+                        onClick={handleLogout}
+                      >
+                        <LogOut className="size-4" />
+                        Logout
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col gap-3">
+                      <Button asChild variant="outline">
+                        <a href={auth.login.url}>{auth.login.title}</a>
+                      </Button>
+                      <Button asChild>
+                        <a href={auth.signup.url}>{auth.signup.title}</a>
+                      </Button>
+                    </div>
+                  )}
                 </div>
               </SheetContent>
             </Sheet>
@@ -200,6 +224,42 @@ const Navbar = ({
   );
 };
 
+/* ── User Dropdown Component ── */
+const UserDropdown = ({
+  userName,
+  onLogout,
+}: {
+  userName: string;
+  onLogout: () => void;
+}) => {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="outline" size="sm" className="flex items-center gap-2">
+          <User className="size-4" />
+          <span className="max-w-[120px] truncate">{userName}</span>
+          <ChevronDown className="size-3 opacity-60" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-48">
+        <div className="px-2 py-1.5">
+          <p className="text-xs text-muted-foreground">Signed in as</p>
+          <p className="truncate text-sm font-medium">{userName}</p>
+        </div>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem
+          onClick={onLogout}
+          className="cursor-pointer text-destructive focus:text-destructive gap-2"
+        >
+          <LogOut className="size-4" />
+          Logout
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+};
+
+/* ── Render Helpers ── */
 const renderMenuItem = (item: MenuItem) => {
   if (item.items) {
     return (

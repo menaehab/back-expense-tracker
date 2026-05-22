@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import api from '@/lib/api';
 import { useRouter } from 'next/navigation';
+import { useUserStore } from '@/store/user-state';
 
 type formValues = {
   email: string;
@@ -29,6 +30,7 @@ export default function Login() {
     },
   });
   const [loading, setLoading] = React.useState<boolean>(false);
+  const { setUser } = useUserStore();
 
   const onSubmit = async (data: formValues) => {
     try {
@@ -39,6 +41,9 @@ export default function Login() {
 
       // login
       const response = await api.post("/api/login", data);
+      const user = response.data.data.user;
+
+      setUser(user);
 
       router.refresh();
       router.push("/");
