@@ -7,7 +7,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import api, { getCsrfCookie } from '@/lib/api';
+import api from '@/lib/api';
+import { useRouter } from 'next/navigation';
+
 type formValues = {
   name: string;
   email: string;
@@ -15,18 +17,8 @@ type formValues = {
   password_confirmation: string;
 }
 export default function Register() {
-  React.useEffect(() => {
-    const getCsrf = async () => {
-      const response = await getCsrfCookie();
+  const router = useRouter();
 
-      if (response.status === 204) {
-        window.location.href = "/";
-      }
-      console.log(response);
-    };
-
-    getCsrf();
-  }, []);
   const schema = z.object({
     name: z.string().min(2).max(255),
     email: z.string().email(),
@@ -47,10 +39,23 @@ export default function Register() {
   });
   const [loading, setLoading] = React.useState<boolean>(false);
   const onSubmit = async (data: formValues) => {
-    setLoading(true);
-    const response = await api.post("/register", data);
-    setLoading(false);
-    console.log(response.data);
+    try {
+      setLoading(true);
+
+      // Initialize CSRF cookie
+      await api.get("/sanctum/csrf-cookie");
+
+      // register
+      const response = await api.post("/api/register", data);
+
+      // Refresh page state and redirect to home
+      router.refresh();
+      router.push("/");
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
   };
   return (
     <div className="flex items-center justify-center h-screen">

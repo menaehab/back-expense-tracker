@@ -7,11 +7,16 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
+import api from '@/lib/api';
+import { useRouter } from 'next/navigation';
+
 type formValues = {
   email: string;
   password: string;
 }
 export default function Login() {
+  const router = useRouter();
+
   const schema = z.object({
     email: z.string().email(),
     password: z.string().min(8),
@@ -23,8 +28,25 @@ export default function Login() {
       password: "",
     },
   });
+  const [loading, setLoading] = React.useState<boolean>(false);
+
   const onSubmit = async (data: formValues) => {
-    await console.log(data);
+    try {
+      setLoading(true);
+
+      // get csrf cookie
+      await api.get("/sanctum/csrf-cookie");
+
+      // login
+      const response = await api.post("/api/login", data);
+
+      router.refresh();
+      router.push("/");
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
   };
   return (
     <div className="flex items-center justify-center h-screen">
@@ -38,7 +60,9 @@ export default function Login() {
           <Label htmlFor="password" className="block text-gray-700 mb-2">Password</Label>
           <Input type="password" id="password" {...register("password")} />
         </div>
-        <Button type="submit" className="w-full cursor-pointer text-white py-2 rounded">Login</Button>
+        <Button type="submit" className="w-full cursor-pointer text-white py-2 rounded" disabled={loading}>
+          {loading ? "Logging in..." : "Login"}
+        </Button>
       </form>
     </div>
   )

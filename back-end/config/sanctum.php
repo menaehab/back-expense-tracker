@@ -7,7 +7,7 @@ use Laravel\Sanctum\Sanctum;
 
 return [
 
-    'prefix' => 'api/sanctum',
+    'prefix' => 'sanctum',
 
     /*
     |--------------------------------------------------------------------------
