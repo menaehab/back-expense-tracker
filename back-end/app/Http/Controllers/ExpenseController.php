@@ -12,14 +12,15 @@ class ExpenseController extends Controller
      */
     public function index(Request $request)
     {
-        $per_page= in_array($request->per_page, [10, 25, 50]) ? $request->per_page : 10;
+        $per_page = in_array($request->per_page, [10, 25, 50]) ? $request->per_page : 10;
         $search = $request->search;
 
         $expenses = Expense::where('user_id', auth()->id())
-        ->when($search, function ($query, $search) {
-            $query->where('reason', 'like', "%{$search}%");
-        })
-        ->paginate($per_page)->withQueryString();
+            ->when($search, function ($query, $search) {
+                $query->where('reason', 'like', "%{$search}%");
+            })
+            ->latest()
+            ->paginate($per_page)->withQueryString();
 
         return response()->json($expenses);
     }
