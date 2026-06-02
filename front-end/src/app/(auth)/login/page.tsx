@@ -65,6 +65,9 @@ export default function Login() {
           <Label htmlFor="password" className="block text-gray-700 mb-2">Password</Label>
           <Input type="password" id="password" {...register("password")} />
         </div>
+        <div className='mb-4'>
+          <p className='text-sm text-gray-500'>Don't have an account? <a href="/register" className='text-blue-500 hover:underline'>Register</a></p>
+        </div>
         <Button type="submit" className="w-full cursor-pointer text-white py-2 rounded" disabled={loading}>
           {loading ? "Logging in..." : "Login"}
         </Button>

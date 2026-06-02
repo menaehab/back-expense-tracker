@@ -82,6 +82,9 @@ export default function Register() {
           <Label htmlFor="password_confirmation" className="block text-gray-700 mb-2">Confirm Password</Label>
           <Input type="password" id="password_confirmation" {...register("password_confirmation")} />
         </div>
+        <div className='mb-4'>
+          <p className='text-sm text-gray-500'>Do you have an account? <a href="/login" className='text-blue-500 hover:underline'>Login</a></p>
+        </div>
         <Button type="submit" className="w-full cursor-pointer text-white py-2 rounded" disabled={loading}>
           {loading ? "Registering..." : "Register"}
         </Button>

@@ -4,8 +4,8 @@ export default function Home() {
   const { user } = useUserStore();
   console.log("User in Home page:", user);
   return (
-    <div>
-      <h1>Welcome, {user?.name || "Guest"}!</h1>
+    <div className="container mx-auto">
+      <h1 className="text-3xl font-bold text-center my-8">Welcome, {user?.name || "Guest"}!</h1>
     </div>
   );
 }
