@@ -1,6 +1,6 @@
 "use client";
 
-import { Book, Menu, Sunset, Trees, Zap, LogOut, ChevronDown, User } from "lucide-react";
+import { Menu, LogOut, ChevronDown, User } from "lucide-react";
 
 import {
   Accordion,
@@ -32,7 +32,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
-import { useEffect } from "react";
 import { useUserStore } from "@/store/user-state";
 import api from "@/lib/api";
 import { useRouter } from "next/navigation";
@@ -87,7 +86,7 @@ const Navbar = ({
   },
   className,
 }: NavbarProps) => {
-  const { user, setUser } = useUserStore();
+  const { user } = useUserStore();
   const router = useRouter();
 
   const isLoggedIn = !!user;
