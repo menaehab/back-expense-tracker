@@ -1,0 +1,338 @@
+name: Expenses
+description: ''
+endpoints:
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/expenses
+    metadata:
+      custom: []
+      groupName: Expenses
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'List expenses'
+      description: 'Get a paginated list of expenses owned by the authenticated user.'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {YOUR_AUTH_KEY}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters:
+      per_page:
+        custom: []
+        name: per_page
+        description: 'Number of expenses per page. Must be 10, 25, or 50.'
+        required: false
+        example: 10
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      search:
+        custom: []
+        name: search
+        description: 'Filter expenses by reason.'
+        required: false
+        example: Groceries
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanQueryParameters:
+      per_page: 10
+      search: Groceries
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "current_page": 1,
+            "data": [
+              {
+                "id": 1,
+                "reason": "Groceries",
+                "amount": "125.50",
+                "user_id": 1,
+                "created_at": "2026-06-02T10:53:32.000000Z",
+                "updated_at": "2026-06-02T10:53:32.000000Z"
+              }
+            ],
+            "per_page": 10,
+            "total": 1
+          }
+        headers: []
+        description: success
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/expenses
+    metadata:
+      custom: []
+      groupName: Expenses
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Create an expense'
+      description: 'Create a new expense for the authenticated user.'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {YOUR_AUTH_KEY}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      reason:
+        custom: []
+        name: reason
+        description: 'The expense reason.'
+        required: true
+        example: Groceries
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      amount:
+        custom: []
+        name: amount
+        description: 'The expense amount. Minimum 0.01.'
+        required: true
+        example: 125.5
+        type: number
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanBodyParameters:
+      reason: Groceries
+      amount: 125.5
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 201
+        content: |-
+          {
+            "message": "Expense created successfully",
+            "data": {
+              "expense": {
+                "id": 1,
+                "reason": "Groceries",
+                "amount": "125.50",
+                "user_id": 1,
+                "created_at": "2026-06-02T10:53:32.000000Z",
+                "updated_at": "2026-06-02T10:53:32.000000Z"
+              }
+            }
+          }
+        headers: []
+        description: success
+      -
+        custom: []
+        status: 422
+        content: |-
+          {
+            "message": "The reason field is required.",
+            "errors": {
+              "reason": ["The reason field is required."]
+            }
+          }
+        headers: []
+        description: 'validation error'
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - PUT
+      - PATCH
+    uri: 'api/expenses/{id}'
+    metadata:
+      custom: []
+      groupName: Expenses
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Update an expense'
+      description: 'Update an expense owned by the authenticated user.'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {YOUR_AUTH_KEY}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      id:
+        custom: []
+        name: id
+        description: 'The expense ID.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      id: 1
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      reason:
+        custom: []
+        name: reason
+        description: 'The updated expense reason.'
+        required: true
+        example: Supermarket
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      amount:
+        custom: []
+        name: amount
+        description: 'The updated expense amount. Minimum 0.01.'
+        required: true
+        example: 150.75
+        type: number
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanBodyParameters:
+      reason: Supermarket
+      amount: 150.75
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "message": "Expense updated successfully",
+            "data": {
+              "expense": {
+                "id": 1,
+                "reason": "Supermarket",
+                "amount": "150.75",
+                "user_id": 1,
+                "created_at": "2026-06-02T10:53:32.000000Z",
+                "updated_at": "2026-06-02T11:00:00.000000Z"
+              }
+            }
+          }
+        headers: []
+        description: success
+      -
+        custom: []
+        status: 404
+        content: |-
+          {
+            "message": "No query results for model [App\\Models\\Expense] 1"
+          }
+        headers: []
+        description: 'expense not found'
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - DELETE
+    uri: 'api/expenses/{id}'
+    metadata:
+      custom: []
+      groupName: Expenses
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Delete an expense'
+      description: 'Delete an expense owned by the authenticated user.'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {YOUR_AUTH_KEY}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      id:
+        custom: []
+        name: id
+        description: 'The expense ID.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      id: 1
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "message": "Expense deleted successfully"
+          }
+        headers: []
+        description: success
+      -
+        custom: []
+        status: 404
+        content: |-
+          {
+            "message": "No query results for model [App\\Models\\Expense] 1"
+          }
+        headers: []
+        description: 'expense not found'
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
